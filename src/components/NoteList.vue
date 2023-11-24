@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import NoteItem from './NoteItem.vue';
+	import TodoList from './TodoList.vue';
 	import { useNoteStore } from '@/stores/note';
 
 	const noteStore = useNoteStore();
@@ -7,12 +7,38 @@
 
 <template>
 	<div>
-		<NoteItem
-			v-for="note of noteStore.notes"
-			:key="note.id"
-      :note="note"
-		/>
+		<el-collapse>
+			<el-collapse-item
+				v-for="note of noteStore.notes"
+				:key="note.id"
+				:name="note.id"
+				class="accordion-header"
+			>
+				<template #title>
+					{{ note.title }}
+				</template>
+				<div>
+					<ul>
+						<TodoList
+							v-for="todo of note?.todos"
+							:key="todo.id"
+							:oneTodo="todo"
+							class="todo-item"
+						/>
+					</ul>
+				</div>
+			</el-collapse-item>
+		</el-collapse>
 	</div>
 </template>
 
-<style scoped></style>
+<style scoped>
+	.accordion-header :deep(.el-collapse-item__header) {
+		font-size: 20px;
+	}
+	.todo-item {
+		display: flex;
+		align-items: center;
+		padding: 6px 20px;
+	}
+</style>
