@@ -1,18 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { loadLayoutMiddleware } from '@/router/middleware/loadLayout.middleware';
-import { RouteNamesEnum } from '@/router/router.types';
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
 		{
 			path: '/',
-			name: RouteNamesEnum.home,
+			name: 'home',
 			component: () => import('@/views/HomeView.vue'),
 		},
 		{
-			path: '/note',
-			name: RouteNamesEnum.addEdit,
+			path: `/add`,
+			name: 'add',
+			component: () => import('../views/AddEditView.vue'),
+		},
+		{
+			path: `/edit/:id`,
+			name: 'edit',
 			component: () => import('../views/AddEditView.vue'),
 		},
 	],

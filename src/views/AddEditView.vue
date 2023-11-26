@@ -1,67 +1,176 @@
 <script setup lang="ts">
+	import { useRoute, useRouter } from 'vue-router';
+	import { computed, onMounted, ref } from 'vue';
+	import { useNoteStore } from '@/stores/note';
+	import type { INote } from '@/stores/note';
 
+	const noteStore = useNoteStore();
+	const router = useRouter();
+	const route = useRoute();
+
+	const getNoteInfo = () => {
+		if (route.params.id) {
+			const id = route.params.id.toString();
+			const noteInfo = noteStore.getOneNote(id);
+			return noteInfo;
+		}
+	};
+
+	let edit = ref(false);
+
+	edit.value = Boolean(route.params.id);
+
+	const typeButtonOk = computed(() => (edit.value ? 'warning' : 'success'));
+	const getRandomId = () => Math.floor(Math.random() * 100000).toString();
+
+	const todoForm = ref<INote>({
+		id:  getRandomId(),
+		title: '',
+		isNoteCompleted: false,
+		todos: [
+			{
+				id: getRandomId(),
+				todo: '',
+				isTodoCompleted: false,
+			},
+		],
+	});
+
+	const addTodo = () => {
+		todoForm.value.todos.push({
+			id: getRandomId(),
+			todo: '',
+			isTodoCompleted: false,
+		});
+	};
+
+	const removeTodo = (idx: number) => {
+		todoForm.value.todos.splice(idx, 1);
+	};
+
+	const saveNote = (note: INote) => {
+		if (edit.value) {
+			noteStore.editNoteItem(note);
+		} else {
+			noteStore.setNoteItem(note);
+		}
+		router.push('/');
+	};
+
+	const returnToHomePage = () => {
+		router.push('/');
+	};
+
+	const setDataToForm = () => {
+		const data = getNoteInfo();
+		if (data) {
+			todoForm.value = JSON.parse(JSON.stringify(data));
+		}
+	};
+	// getNoteInfo();
+
+	onMounted(() => {
+		setDataToForm();
+	});
 </script>
 
-
 <template>
-  <div>
-    <el-form :model="form" label-width="120px">
-    <el-form-item label="Activity name">
-      <el-input v-model="form.name" />
-    </el-form-item>
-    <el-form-item label="Activity zone">
-      <el-select v-model="form.region" placeholder="please select your zone">
-        <el-option label="Zone one" value="shanghai" />
-        <el-option label="Zone two" value="beijing" />
-      </el-select>
-    </el-form-item>
-    <el-form-item label="Activity time">
-      <el-col :span="11">
-        <el-date-picker
-          v-model="form.date1"
-          type="date"
-          placeholder="Pick a date"
-          style="width: 100%"
-        />
-      </el-col>
-      <el-col :span="2" class="text-center">
-        <span class="text-gray-500">-</span>
-      </el-col>
-      <el-col :span="11">
-        <el-time-picker
-          v-model="form.date2"
-          placeholder="Pick a time"
-          style="width: 100%"
-        />
-      </el-col>
-    </el-form-item>
-    <el-form-item label="Instant delivery">
-      <el-switch v-model="form.delivery" />
-    </el-form-item>
-    <el-form-item label="Activity type">
-      <el-checkbox-group v-model="form.type">
-        <el-checkbox label="Online activities" name="type" />
-        <el-checkbox label="Promotion activities" name="type" />
-        <el-checkbox label="Offline activities" name="type" />
-        <el-checkbox label="Simple brand exposure" name="type" />
-      </el-checkbox-group>
-    </el-form-item>
-    <el-form-item label="Resources">
-      <el-radio-group v-model="form.resource">
-        <el-radio label="Sponsor" />
-        <el-radio label="Venue" />
-      </el-radio-group>
-    </el-form-item>
-    <el-form-item label="Activity form">
-      <el-input v-model="form.desc" type="textarea" />
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" @click="onSubmit">Create</el-button>
-      <el-button>Cancel</el-button>
-    </el-form-item>
-  </el-form>
-  </div>
+	<div>
+		<h1 class="h1-form">
+			{{ edit ? 'Изменение заметки' : 'Создание новой заметки' }}
+		</h1>
+		<el-form
+			label="Создание"
+			class="form"
+			v-model="todoForm"
+		>
+			<el-form-item
+				label="Title"
+				style="margin-bottom: 40px"
+			>
+				<el-col :span="11">
+					<el-input
+						v-model="todoForm.title"
+						placeholder="Enter note title"
+					/>
+				</el-col>
+				<el-col
+					v-if="!edit"
+					:span="2"
+				>
+					<el-checkbox
+						v-model="todoForm.isNoteCompleted"
+						class="checkbox"
+					>
+						{{ todoForm.isNoteCompleted ? 'Completed' : 'Not completed' }}
+					</el-checkbox>
+				</el-col>
+			</el-form-item>
+
+			<el-form-item
+				label="Todo"
+				v-for="(todo, idx) of todoForm.todos"
+				:key="todo.id"
+			>
+				<el-col :span="10">
+					<el-input
+						v-model="todo.todo"
+						placeholder="Enter todo"
+					/>
+				</el-col>
+				<el-col :span="4">
+					<el-checkbox
+						v-model="todo.isTodoCompleted"
+						v-if="!edit"
+						placeholder="Enter todo"
+						class="checkbox"
+					>
+						{{ todo.isTodoCompleted ? 'Completed' : 'Not completed' }}
+					</el-checkbox>
+				</el-col>
+				<el-col :span="2">
+					<el-button
+						v-if="todoForm.todos.length > 1"
+						type="danger"
+						@click="removeTodo(idx)"
+						>-</el-button
+					>
+				</el-col>
+			</el-form-item>
+			<el-form-item>
+				<el-button
+					type="primary"
+					@click="addTodo"
+					>+</el-button
+				>
+			</el-form-item>
+			<el-form-item>
+				<el-button
+					:type="typeButtonOk"
+					@click="
+						saveNote({
+							...todoForm,
+						})
+					"
+					>{{ edit ? 'Сохранить изменения' : 'Сохранить заметку' }}</el-button
+				>
+				<el-button @click="returnToHomePage">Отмена</el-button>
+			</el-form-item>
+		</el-form>
+	</div>
 </template>
 
 <style scoped>
+	.form {
+		width: 1000px;
+		padding-top: 20px;
+	}
+
+	.checkbox {
+		margin-left: 10px;
+	}
+
+	.h1-form {
+		margin-top: 16px;
+	}
 </style>

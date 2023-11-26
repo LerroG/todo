@@ -1,53 +1,5 @@
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { defineStore } from 'pinia';
-
-const notesMocks: INote[] = [
-	{
-		id: Math.random().toString(),
-		title: 'Title 1',
-		isNoteCompleted: true,
-		todos: [
-			{
-				id: Math.random().toString(),
-				todo: 'Todo 1',
-				isTodoCompleted: true,
-			},
-			{
-				id: Math.random().toString(),
-				todo: 'Todo 2',
-				isTodoCompleted: false,
-			},
-			{
-				id: Math.random().toString(),
-				todo: 'Todo 3',
-				isTodoCompleted: false,
-			},
-		],
-	},
-	{
-		id: Math.random().toString(),
-		title: 'Title 2',
-		isNoteCompleted: true,
-		todos: [
-			{
-				id: Math.random().toString(),
-				todo: 'Todo 4',
-				isTodoCompleted: false,
-			},
-			{
-				id: Math.random().toString(),
-				todo: 'Todo 5',
-				isTodoCompleted: true,
-			},
-			{
-				id: Math.random().toString(),
-				todo: 'Todo 6',
-				isTodoCompleted: true,
-			},
-		],
-	},
-];
-localStorage.setItem('notes', JSON.stringify(notesMocks));
 
 export interface ITodo {
 	id: string;
@@ -67,12 +19,44 @@ export const useNoteStore = defineStore('noteStore', () => {
 
 	const notesInLocalStorage = localStorage.getItem('notes');
 	if (notesInLocalStorage) {
-		notes.value = JSON.parse(notesInLocalStorage);
+		notes.value = JSON.parse(notesInLocalStorage)._value;
 	}
 
-	const setNotes = (value: INote[]) => {
-		localStorage.setItem('notes', value);
-		notes.value = value;
+	const setNoteItem = (note: INote) => {
+		notes.value.push(note);
 	};
-	return { notes, setNotes };
+
+	const getOneNote = (id: string) => {
+		return notes.value.find((item) => item.id === id);
+	};
+	const editNoteItem = (note: INote) => {
+		const noteIndex = notes.value.findIndex((item) => item.id === note.id);
+		notes.value.splice(noteIndex, 1, note);
+	};
+
+	const removeNoteItem = (id: string) => {
+		const noteIndex = notes.value.findIndex((item) => item.id === id);
+		notes.value.splice(noteIndex, 1);
+	};
+
+	watch(
+		() => notes,
+		(state) => {
+			localStorage.setItem('notes', JSON.stringify(state));
+		},
+		{ deep: true }
+	);
+
+	return {
+		notes,
+		setNoteItem,
+		getOneNote,
+		editNoteItem,
+		removeNoteItem,
+
+		// setTodoToNote,
+		// addTodoToNote,
+		// editTodoToNote,
+		// deleteTodoToNote,
+	};
 });
