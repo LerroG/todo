@@ -2,6 +2,7 @@
 	import { useRouter } from 'vue-router';
 	import TodoList from './TodoList.vue';
 	import { useNoteStore } from '@/stores/note';
+	import { confirmBox, confirmMsg,cancelMsg } from '@/utils/confirm';
 
 	const noteStore = useNoteStore();
 	const router = useRouter();
@@ -12,6 +13,19 @@
 
 	const goToEditPage = (id: string) => {
 		router.push(`/edit/${id}`);
+	};
+	const removeNote = (id: string) => {
+		confirmBox(
+			'Вы уверены что хотите удалить эту запись?',
+			'Подтвердите действие'
+		)
+			.then(() => {
+				confirmMsg();
+				noteStore.removeNoteItem(id);
+			})
+			.catch(() => {
+				cancelMsg();
+			});
 	};
 </script>
 
@@ -46,11 +60,11 @@
 								></el-button>
 								<el-button
 									type="danger"
-									@click="noteStore.removeNoteItem(note.id)"
+									@click.stop="removeNote(note.id)"
 									><el-icon> <Delete /> </el-icon
 								></el-button>
 							</template>
-							<div v-if="noteStore.notes.length">
+							<div v-if="note.todos.length">
 								<ul>
 									<TodoList
 										v-for="todo of note?.todos"

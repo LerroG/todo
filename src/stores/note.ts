@@ -53,10 +53,5 @@ export const useNoteStore = defineStore('noteStore', () => {
 		getOneNote,
 		editNoteItem,
 		removeNoteItem,
-
-		// setTodoToNote,
-		// addTodoToNote,
-		// editTodoToNote,
-		// deleteTodoToNote,
 	};
 });

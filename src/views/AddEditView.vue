@@ -3,6 +3,7 @@
 	import { computed, onMounted, ref } from 'vue';
 	import { useNoteStore } from '@/stores/note';
 	import type { INote } from '@/stores/note';
+	import { confirmBox, confirmMsg, cancelMsg } from '@/utils/confirm';
 
 	const noteStore = useNoteStore();
 	const router = useRouter();
@@ -24,16 +25,10 @@
 	const getRandomId = () => Math.floor(Math.random() * 100000).toString();
 
 	const todoForm = ref<INote>({
-		id:  getRandomId(),
+		id: getRandomId(),
 		title: '',
 		isNoteCompleted: false,
-		todos: [
-			{
-				id: getRandomId(),
-				todo: '',
-				isTodoCompleted: false,
-			},
-		],
+		todos: [],
 	});
 
 	const addTodo = () => {
@@ -45,16 +40,32 @@
 	};
 
 	const removeTodo = (idx: number) => {
-		todoForm.value.todos.splice(idx, 1);
+		confirmBox(
+			'Вы уверены что хотите удалить эту запись?',
+			'Подтвердите действие'
+		)
+			.then(() => {
+				confirmMsg();
+				todoForm.value.todos.splice(idx, 1);
+			})
+			.catch(() => {
+				cancelMsg();
+			});
 	};
 
 	const saveNote = (note: INote) => {
 		if (edit.value) {
-			noteStore.editNoteItem(note);
+			confirmBox(
+				'Вы уверены что хотите сохранить изменения?',
+				'Подтвердите действие'
+			).then(() => {
+				noteStore.editNoteItem(note);
+				router.push('/');
+			});
 		} else {
 			noteStore.setNoteItem(note);
+			router.push('/');
 		}
-		router.push('/');
 	};
 
 	const returnToHomePage = () => {
@@ -130,7 +141,6 @@
 				</el-col>
 				<el-col :span="2">
 					<el-button
-						v-if="todoForm.todos.length > 1"
 						type="danger"
 						@click="removeTodo(idx)"
 						>-</el-button
