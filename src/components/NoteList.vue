@@ -81,7 +81,7 @@
 							</div>
 
 							<div v-else>
-								<h3>Список дел пуст</h3>
+								<h3>Список задач пуст</h3>
 							</div>
 						</el-collapse-item>
 					</div>
@@ -91,7 +91,7 @@
 				class="empty-list"
 				v-else
 			>
-				<h2>Спиосок задач пуст</h2>
+				<h2>Список заметок пуст</h2>
 			</div>
 		</div>
 	</div>
