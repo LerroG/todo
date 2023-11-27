@@ -2,7 +2,7 @@
 	import { useRouter } from 'vue-router';
 	import TodoList from './TodoList.vue';
 	import { useNoteStore } from '@/stores/note';
-	import { confirmBox, confirmMsg,cancelMsg } from '@/utils/confirm';
+	import { confirmBox, confirmMsg, cancelMsg } from '@/utils/confirm';
 
 	const noteStore = useNoteStore();
 	const router = useRouter();
@@ -52,18 +52,23 @@
 							class="accordion-header"
 						>
 							<template #title>
-								{{ note.title }}
-								<el-button
-									type="warning"
-									@click="goToEditPage(note.id)"
-									><el-icon> <Edit /> </el-icon
-								></el-button>
-								<el-button
-									type="danger"
-									@click.stop="removeNote(note.id)"
-									><el-icon> <Delete /> </el-icon
-								></el-button>
+								<div class="title-accordion">
+									<span>{{ note.title }}</span>
+									<div class="button-group">
+										<el-button
+											type="warning"
+											@click.stop="goToEditPage(note.id)"
+											><el-icon> <Edit /> </el-icon
+										></el-button>
+										<el-button
+											type="danger"
+											@click.stop="removeNote(note.id)"
+											><el-icon> <Delete /> </el-icon
+										></el-button>
+									</div>
+								</div>
 							</template>
+
 							<div v-if="note.todos.length">
 								<ul>
 									<TodoList
@@ -74,6 +79,7 @@
 									/>
 								</ul>
 							</div>
+
 							<div v-else>
 								<h3>Список дел пуст</h3>
 							</div>
@@ -100,6 +106,15 @@
 		display: flex;
 		align-items: center;
 		padding: 6px 20px;
+	}
+
+	.title-accordion {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+	}
+	.button-group {
+		margin-right: 10px;
 	}
 
 	.collapse {
