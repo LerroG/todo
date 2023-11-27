@@ -133,7 +133,7 @@
 				prop="title"
 				:rules="{
 					required: true,
-					message: 'domain can not be null',
+					message: 'Это поле не может быть пустым',
 					trigger: 'blur',
 				}"
 			>
@@ -163,7 +163,7 @@
 				:prop="'todos.' + idx + '.todo'"
 				:rules="{
 					required: true,
-					message: 'domain can not be null',
+					message: 'Это поле не может быть пустым',
 					trigger: 'blur',
 				}"
 			>
